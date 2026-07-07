@@ -138,6 +138,16 @@ Breakdown Express (Breakdown Services) is a **paid, authenticated third-party pl
 - **B. Assisted export tool.** If there's no bulk export, a small browser-based tool Natasha runs *while logged in* that walks her saved lists / project submissions at human pace and writes structured rows + headshots to Airtable. She stays in control; it's her data, her session.
 - **C. Eco Cast presentations.** Shortlists she's built as Eco Cast presentations can be shared/exported and mapped in.
 
+**Scope — breadth with structure (full searchable pool).** *Decision:* pull broadly, not just curated. The value of the system is a deep, **searchable** pool of everyone ever referred to Natasha, with full details (skills, location, physical, reps) — so she is no longer limited to memory. Engagement status (Selected / Scheduled / Callback vs. Unviewed / Viewed) is captured as a **ranking/filter field, not a gate**: she searches the whole pool and can narrow to talent she actually advanced.
+
+*Account depth (confirmed):* Projects → ~450 breakdowns → roles → **status buckets** (Unviewed · Viewed · Selected · Not Scheduled · Scheduled · Callback) → individual actors → each actor's Actors Access profile. Tens of thousands of records.
+
+*Extraction approach:* this is an **automated crawl**, not click-by-click. The breakdown/project IDs are already enumerable from the projects list (`breakdown=` / `project=`). A crawler running **in Natasha's authenticated session** walks those IDs and pulls each breakdown's roster, then (where available) each actor's profile for full detail. Two forms:
+- **In-browser (console / bookmarklet)** using `fetch()` within her login — no installs; downloads a CSV/JSON at the end. Best fit for a non-technical operator.
+- **Local Playwright script** with her session — more robust for the full-scale run; needs a technical operator.
+
+Efficient per-breakdown roster vectors seen in the UI: **Quicksheet** and **"View Submissions by Agency"** (consolidated actor lists with photos/names/agency), plus the per-status buckets. Run **respectfully** — batched, rate-limited, mindful of Breakdown Services' ToS — and **validate on one breakdown before scaling to all ~450**.
+
 ### 5.3 Breakdown Express / Actors Access → Airtable field mapping
 
 The talent structure on BE/Actors Access is standardized, so it maps 1:1 into the schema — the DB is already shaped to receive it:
