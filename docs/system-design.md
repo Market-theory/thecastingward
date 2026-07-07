@@ -73,8 +73,9 @@ Six tables. `→` denotes a link to another table.
 - `Representation status` (Repped · Seeking · Self-managed) · `Representation` (→ Representation)
 - `Years active` (number or bucket)
 - `Income range` (single select: the $/yr buckets) — *sensitive, optional; see §7*
-- `Skills / specialties` (multi-select)
+- `Skills / specialties` (multi-select) · `Training` (long text)
 - `Age range` · `Gender` · `Ethnicity` — standard casting attributes, *sensitive; see §7*
+- `Physical / size card` — `Height` · `Weight` · `Build` · `Hair` · `Eyes` (Breakdown/Actors Access "Appearance" fields; see §5.3)
 
 **Links**
 - `IMDb` · `Actors Access / Casting Networks` · `Reel/Demo`
@@ -126,10 +127,36 @@ Goal: get the two messy sources into the schema above, de-duped and tagged.
 5. **Review** — the *Needs review* view surfaces low-confidence records for Natasha to confirm. Nothing wrong enters silently.
 
 ### Source B — Breakdown Express (secondary, structured)
-Breakdown Express has no known open/public API, so extraction is different from Gmail:
-- **Preferred:** whatever **CSV/data export** her account allows on submissions and saved lists → mapped into the schema.
-- **Fallback:** if it's view-only, a structured manual/assisted capture of her key saved lists.
-- Submissions here are already semi-structured (talent name, rep, headshot, resume, links), so once exported they map cleanly. *Open question: confirm what her account permits — see §8.*
+
+Breakdown Express (Breakdown Services) is a **paid, authenticated third-party platform** with no known public API. Two hard constraints shape how we get data out:
+
+1. **It runs on Natasha's side, not ours.** Extraction requires being logged into *her* account; this build environment is network-restricted and has no credentials. So any extraction tool runs **on her machine, in her authenticated session** — this system can design it, not execute it.
+2. **Respect the platform's terms.** This is *her* data (talent who submitted to her), which makes portability legitimate, but automated hammering of BE's servers can breach their ToS and trip anti-bot. So we prefer **native export**, and if we must capture from the UI, we do it **human-paced and assisted**, not as an aggressive scraper.
+
+**Approach, in order of preference:**
+- **A. Native export / report.** Confirm what her account offers (sibling platform Casting Networks has a "Download CSV" report; BE's equivalent needs checking in-account or with BE support). Best case — clean CSV, done.
+- **B. Assisted export tool.** If there's no bulk export, a small browser-based tool Natasha runs *while logged in* that walks her saved lists / project submissions at human pace and writes structured rows + headshots to Airtable. She stays in control; it's her data, her session.
+- **C. Eco Cast presentations.** Shortlists she's built as Eco Cast presentations can be shared/exported and mapped in.
+
+### 5.3 Breakdown Express / Actors Access → Airtable field mapping
+
+The talent structure on BE/Actors Access is standardized, so it maps 1:1 into the schema — the DB is already shaped to receive it:
+
+| Breakdown / Actors Access field | → Airtable |
+|---|---|
+| Headshots, photos, SlateShot | `Talent.Headshot` · `Additional photos` |
+| Demo reel / media clips | `Talent.Reel/Demo` |
+| Appearance: gender, age range, ethnicity | `Talent.Gender` · `Age range` · `Ethnicity` |
+| Size card: height, weight, build, hair, eyes | `Talent.Physical / size card` |
+| Union status | `Talent.Union status` |
+| "Represented by" (agency) | `Talent.Representation` → **Representation** table |
+| Resume — credits (Film / TV / Theater / Commercial) | **Credits / Projects** table |
+| Resume — training | `Talent.Training` |
+| Resume — special skills | `Talent.Skills / specialties` |
+| Contact (often via rep) | `Talent.Email` · `Phone` · `Best contact method` |
+| Profile / external links | `Talent.IMDb` · socials · `Website` |
+
+Same target schema as Gmail (§5, Source A) — the two sources differ only in the `Source` field.
 
 Both sources write into the **same** Talent schema, distinguished only by the `Source` field.
 
