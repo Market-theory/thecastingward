@@ -135,16 +135,75 @@ Both sources write into the **same** Talent schema, distinguished only by the `S
 
 ---
 
-## 6. Phase 2 — funnel website (outline)
+## 6. Phase 2 — funnel website
 
-Replaces the dated site. Design goals, mapped to the current site's gaps:
+### 6.1 The model: Suzy Welch's "expert authority funnel" (teardown)
 
+`suzywelch.com` is the reference format. It's not a set of pages — it's a **value ladder** that walks a stranger from free → premium, resting on a few repeatable moves. Decoded from her homepage, top to bottom:
+
+| Suzy's section | The move | Why it works |
+|---|---|---|
+| **Nav:** About · Books · Podcast · Assessments · Programs & Offerings · **[Newsletter Sign Up]** | One hard CTA lives permanently in the nav | Capture is always one click away |
+| **Hero:** "Discover your authentic *life and career*." + credential subhead ("3× NYT bestselling author, NYU Stern professor, founder of Becoming You Labs") + **two CTAs**: *Discover your values →* (soft/free) and *Purchase Becoming You →* (hard/paid) | Problem-promise headline, **credentials as identity**, dual soft+hard CTA | You know in 3 seconds what she does, that she's credible, and get both a free and a paid door |
+| **Assessments:** "Career Traits Compass" + "The Values Bridge" — free interactive tools | **Lead magnet that also *segments*** | ⭐ The key move — see §6.2 |
+| **Trusted by:** Stanford · LinkedIn · Meta · NYU · Amazon | Borrowed authority, "trusted by" framing | Broader/stronger than "I worked for them" |
+| **Book:** "At last, a way to figure out your *authentic* purpose" + retailer buttons + **bestseller badges** (#1 Amazon, USA Today, TODAY) | Entry product doubles as lead gen; layered prestige | Low-ticket top of the ladder |
+| **Certification Program** (w/ NYU) | Premium, recurring, creates evangelists | Top of the ladder |
+| **Testimonial** (named person + credentials) → **Podcast** → **FAQ** | Social proof · content channel · objection handling | Trust + top-of-funnel + SEO |
+| **Footer:** newsletter capture **again** + full nav | Email capture is repeated, not one-and-done | Second chance to convert scrollers |
+
+Prestige appears in **three** places (hero subhead, "Trusted by" bar, bestseller badges). Email capture appears **twice** (mid-page + footer). Nothing is subtle.
+
+### 6.2 The most important lesson: lead magnet = assessment = intake form
+
+Suzy's "lead magnet" isn't a static PDF — it's a **free assessment** ("Career Traits Compass," "The Values Bridge"). That's strictly better than a downloadable, because a quiz **captures the email *and* segments the person at the same time.**
+
+For Natasha this collapses three things we already planned into one asset:
+
+> **The lead magnet, the lane-picker, and the smart intake form should be the same interactive assessment** — e.g. *"How castable are you right now?"* — that gives the visitor a useful result, and writes a fully-segmented record straight into the Airtable `Talent` table (persona, self-selected tier, union, rep, links, etc.).
+
+One asset = value to them + a categorized record for Natasha. This is the front door to the whole ecosystem.
+
+### 6.3 Natasha's homepage — wireframe
+
+Suzy's structure, wrapped in a **lane-picker** (the one adaptation: Suzy has one audience; Natasha has four).
+
+```
+┌ NAV  "Natasha Ward"      About · Work · Community · Resources · [ Join the List ]
+│
+├ HERO  (full-bleed current photo of Natasha)
+│   H1:  "Get discovered. Get cast. Get working."     ← problem+promise, not "About"
+│   Sub: "Natasha Ward — casting director behind [X, Y, Z] — has spent [N] years
+│         putting unknown talent on screen. Here's how you get there."
+│   [ Find your lane → ]   [ Free: Unknown → Paid guide → ]   ← soft + hard CTA
+│
+├ LANE-PICKER  "Where do you fit?"          ← the adaptation Suzy doesn't need
+│   [ Actor ] [ Producer ] [ Director ] [ Investor ]   → routes + tags in Airtable
+│
+├ ASSESSMENT / LEAD MAGNET  "How castable are you right now?"   ⭐
+│   ~3-min quiz → useful result → captures a segmented record into Airtable Talent
+│   (this IS the intake form + lane-picker + lead magnet, in one)
+│
+├ TRUSTED BY   BET · Essence · [networks / studios / brands she's cast for]
+│
+├ THE METHOD  "The Casting Ward Method"     ← branded, productized system
+│   value ladder:  free guide → downloadables → live workshop → community → inner circle
+│   (actor lane gets the full ladder; producer/investor get "categorize + collaborate")
+│
+├ SOCIAL PROOF   named testimonial(s) from talent she's placed
+├ CONTENT        podcast / panel / stage clips   ← positions her as speaker (transcript)
+├ FAQ            objection handling
+└ FOOTER         newsletter capture (again) + nav + socials
+```
+
+### 6.4 Design goals, mapped to the current site's gaps
 - **Hero** = the problem + who it's for + a clear next action (not "About Natasha").
-- **Prestige markers above the fold** — "Trusted by / featured in" (Essence, BET, studios, networks — real credits).
-- **Visible lead magnet** — one obvious value-for-contact offer (e.g. an actor "unknown → paid in Hollywood" guide).
-- **Branching funnel** — visitor picks their lane (Actor / Producer / Director / Investor) → routed to the right offer, or to a "just catalog them" flow for people we categorize but don't sell to yet.
-- **The smart intake form** — same fields as the Talent table; writes straight into Airtable, pre-sorted. Self-select tier + verification questions.
-- **Positioning** — supports getting Natasha onto stages, panels, podcasts (thought-leadership as a top-of-funnel channel).
+- **Prestige markers above the fold** — layered "Trusted by / featured in" (Essence, BET, studios, networks).
+- **Lead magnet as an assessment** (§6.2) — value-for-contact that also segments.
+- **Lane-picker** — routes Actor / Producer / Director / Investor to the right ladder, or to "categorize, don't sell yet."
+- **Branded method** — productize Natasha's expertise into a named system (Suzy's "Becoming You").
+- **Repeated capture** — newsletter opt-in in the nav *and* the footer.
+- **Positioning** — content/podcast/panel section supports getting Natasha onto stages (transcript).
 
 ---
 
