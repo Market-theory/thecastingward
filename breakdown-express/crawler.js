@@ -65,11 +65,15 @@
     const out = [];
     for (let i = 1; i < parts.length; i++) {
       const c = parts[i];
-      const rid = (c.match(/onePageResume\('([\d-]+)'/) || [])[1] || "";
-      const sub = (c.match(/data-submission="(\d+)"/) || [])[1] || "";
+      const rm = c.match(/onePageResume\('([\d-]+)',\s*'([^']+)'\)/);
+      const rid = (rm && rm[1]) || "";
+      let sub = (c.match(/data-submission="(\d+)"/) || [])[1] || "";
+      if (!sub && rm && rm[2]) {
+        try { sub = atob(rm[2]).split(",").pop() || ""; } catch (e) {}
+      }
       if (!rid && !sub) continue;
       const name = clean((c.match(/text-underline[^>]*>\s*([^<]{2,60})/) || [])[1]);
-      const agency = clean((c.match(/span-agency"[^>]*>([\s\S]*?)<\/div>/) || [])[1]);
+      const agency = clean((c.match(/span-agency"[^>]*>([\s\S]*?)<\/span>/) || [])[1]);
       const status = ((c.match(/submission-rating ([a-z-]+)-rating/) || [])[1] || "").replace(/-/g, " ");
       const photo = (c.match(/src="(https:\/\/breakdownservices[^"]+)"/) || [])[1] || "";
       out.push({
