@@ -1,117 +1,101 @@
-# Airtable AI (Omni) build prompt — The Casting Ward
+# Airtable AI build prompts — The Casting Ward
 
-**How to use:** Open Airtable → create a new base → open the AI/Omni assistant (the "Build with AI" / Omni panel) → paste everything in the box below as one message. After it builds the structure, import your CSVs into the matching tables (map `Headshot` → the Attachment field). If Omni builds it in pieces, paste one table section at a time.
+## ★ OPTION A — Cobuilder ("Let's build your app together" screen)
 
----
+This screen builds the whole app from ONE prompt and can import your data at the same time. Do this:
 
-## ▼▼▼ COPY FROM HERE ▼▼▼
+1. Click **Import spreadsheets** → add **`castingward-talent-SELECTED.csv`**. (This becomes the Talent table, with the images.)
+2. Paste the prompt below into the **"Tell me what you want to build…"** box.
+3. Click **Build it**.
 
-Build a talent-management database called **The Casting Ward** for a Hollywood casting director. It stores actors and industry contacts, the projects/roles they were submitted for, and who represents them. Create the following tables with exactly these fields and field types, then create the links and views described at the end.
+**Paste this:**
+```
+Build a talent-management app for a Hollywood casting director called The Casting Ward. Use the spreadsheet I imported as the main "Talent" table — one row per actor (it has name, headshot, agency/representation status, engagement status, Actors Access link, and notes).
 
-**TABLE 1 — "Talent"** (one row per person; this is the core table)
-- Name — Single line text (primary field)
-- Stage Name — Single line text
-- Email — Email
-- Secondary Email — Email
-- Phone — Phone number
-- Best Contact — Single select: Email, Text, Phone, Through Rep
-- City — Single line text
-- State/Region — Single line text
-- Country — Single line text
-- Website — URL
-- Headshot — Attachment
-- Persona — Multiple select: Actor, Producer, Director, Writer, Financier/Investor, Crew, Other
-- Self-Selected Tier — Single select: Emerging, Working, Established, Premium
-- Assessed Tier — Single select: Emerging, Working, Established, Premium
-- Data Confidence — Single select: Verified, Likely, Unconfirmed
-- Money Tier — Single select: No Budget, Some Budget, Buyer, Investor-Level
-- Ecosystem Status — Single select: Lead, Opted-In, Community Member, Client, Collaborator
-- Union Status — Single select: SAG-AFTRA, SAG-Eligible, Non-Union, Unknown
-- Representation Status — Single select: Repped, Seeking, Self-Managed, Unknown
-- Years Active — Number (integer)
-- Income Range — Single select: Under $25k, $25k–$100k, $100k–$500k, $500k+, Prefer not to say
-- Skills — Multiple select (start empty)
-- Age Range — Single line text
-- Gender — Single line text
-- Ethnicity — Single line text
-- IMDb URL — URL
-- Actors Access URL — URL
-- Reel URL — URL
-- Instagram — Single line text
-- YouTube — Single line text
-- TikTok — Single line text
-- Engagement Status (BE) — Multiple select: Unviewed, Viewed, Selected, Not Scheduled, Scheduled, Callback
-- Submission Notes — Long text
-- Notes — Long text
-- BE Resume ID — Single line text
-- BE Submission IDs — Single line text
-- BE Appearances Count — Number (integer)
-- First Contact — Date
-- Last Interaction — Date
-- Date Added — Created time
-- Tags — Multiple select (start empty)
+Also create these related tables and link each to Talent:
+- Representation — agencies/managers: Company, Type (Agent/Manager/Agency/Publicist), Contact Name, Email, Phone.
+- Sources — where a contact came from: Source Name, Type (Gmail, Breakdown Express, Event, Referral, Funnel Opt-In, Manual), Date, Notes.
+- Credits — an actor's notable work: Title, Type (Film/TV/Streaming/Commercial/Theater), Character, Role Level (Lead/Supporting/Co-Star/Guest Star/Recurring/Featured/Background), Year, Network or Studio, Notable (checkbox).
+- Roles & Breakdowns — the director's projects and roles: Role, Project, Type (Feature Film/Short/Episodic/Reality TV), Description, Status (Open/Filled/On Hold), plus two links to Talent named "Submitted" and "Shortlist".
+- Interactions — a contact log: Date, Type (Email/Call/Meeting/Audition/Booking/Workshop), Summary, linked to Talent.
 
-**TABLE 2 — "Credits"** (notable work; one row per credit)
-- Title — Single line text (primary field)
-- Type — Single select: Film, TV, Streaming, Commercial, Theater, Web, Other
-- Character / Role — Single line text
-- Role Level — Single select: Lead, Supporting, Co-Star, Guest Star, Recurring, Featured, Background
-- Year — Number (integer)
-- Network / Studio / Brand — Single line text
-- Notable — Checkbox
-- Link — URL
+On the Talent table, add any of these fields that aren't already there: Persona (multiple select: Actor, Producer, Director, Writer, Financier/Investor), Assessed Tier (single select: Emerging, Working, Established, Premium), Data Confidence (single select: Verified, Likely, Unconfirmed), Money Tier (single select: No Budget, Some Budget, Buyer, Investor-Level), Ecosystem Status (single select: Lead, Opted-In, Community Member, Client, Collaborator).
 
-**TABLE 3 — "Representation"** (agents, managers, agencies)
-- Company — Single line text (primary field)
-- Type — Single select: Agent, Manager, Agency, Publicist
-- Contact Name — Single line text
-- Email — Email
-- Phone — Phone number
-- State — Single line text
+Create these views on Talent: "Premium Actors" (Persona is Actor and Assessed Tier is Premium); "Advanced by Natasha" (Engagement Status is Selected, Scheduled, or Callback); "Needs Review" (Data Confidence is Unconfirmed); "Producers & Investors" (Persona is Producer or Financier/Investor); "Full Casting Search" grouped by Assessed Tier.
+```
 
-**TABLE 4 — "Sources"** (where each contact came from)
-- Source Name — Single line text (primary field)
-- Type — Single select: Gmail, Breakdown Express, Event, Referral, Funnel Opt-In, Manual
-- Date — Date
-- Notes — Long text
-
-**TABLE 5 — "Roles & Breakdowns"** (the casting director's projects and roles)
-- Role — Single line text (primary field)
-- Project — Single line text
-- Breakdown Title — Single line text
-- Type — Single select: Feature Film, Short, Episodic, Reality TV, Staged Reading, Commercial, Other
-- Description — Long text
-- Requirements — Long text
-- Status — Single select: Open, Filled, On Hold, Archived
-- Published — Date
-- Deadline — Date
-- BE Breakdown ID — Single line text
-- BE Project ID — Single line text
-
-**TABLE 6 — "Interactions"** (touchpoint log)
-- Summary — Single line text (primary field)
-- Date — Date
-- Type — Single select: Email, Call, Meeting, Audition, Booking, Workshop, Event
-- Notes — Long text
-
-**LINKS between tables (create these as "Link to another record" fields):**
-- Talent ↔ Representation (a talent has one or more reps; a rep serves many talent)
-- Talent ↔ Sources (each talent has a source; a source has many talent)
-- Talent ↔ Credits (a talent has many credits)
-- Talent ↔ Interactions (a talent has many interactions)
-- Roles & Breakdowns → Talent, as a field called "Submitted" (many talent submitted to a role)
-- Roles & Breakdowns → Talent, as a field called "Shortlist" (many talent shortlisted for a role)
-
-**VIEWS to create on the Talent table:**
-1. "⭐ Premium Actors" — filter: Persona has any of Actor AND Assessed Tier is Premium; sort by Last Interaction descending.
-2. "📞 Advanced by Natasha" — filter: Engagement Status (BE) has any of Selected, Scheduled, Callback.
-3. "🧐 Needs Review" — filter: Data Confidence is Unconfirmed.
-4. "💼 Producers & Investors" — filter: Persona has any of Producer, Financier/Investor.
-5. "🆕 New This Week" — filter: Date Added is within the past 7 days.
-6. "🎬 Full Casting Search" — no filter; group by Assessed Tier.
-
-## ▲▲▲ COPY TO HERE ▲▲▲
+If that's still too long for the box, delete the "Create these views" paragraph and add the views afterward using Option B step ⑫.
 
 ---
 
-**After Omni builds it:** import `castingward-talent-SELECTED.csv` into the **Talent** table (⚙ / "+" → Import CSV → map columns to the fields above; map the `Headshot` column to the Headshot **Attachment** field so Airtable pulls in the images). The `Representation` and `Source` text values will auto-create linked records.
+## OPTION B — small refine-chat (Omni), one prompt at a time
+
+If you're in the smaller AI chat *inside* a base (not the Cobuilder screen), paste these **one at a time, in order**. Steps 1–5 build the Talent table; 6–10 add the other tables; 11 links them; 12 makes the views.
+
+---
+
+**① Talent — identity**
+```
+Create a table named Talent. Add fields: Name (single line text, primary field); Stage Name (single line text); Email (email); Secondary Email (email); Phone (phone number); Best Contact (single select: Email, Text, Phone, Through Rep); City (single line text); State/Region (single line text); Country (single line text); Website (URL); Headshot (attachment).
+```
+
+**② Talent — categorization**
+```
+In the Talent table add these fields: Persona (multiple select: Actor, Producer, Director, Writer, Financier/Investor, Crew, Other); Self-Selected Tier (single select: Emerging, Working, Established, Premium); Assessed Tier (single select: Emerging, Working, Established, Premium); Data Confidence (single select: Verified, Likely, Unconfirmed); Money Tier (single select: No Budget, Some Budget, Buyer, Investor-Level); Ecosystem Status (single select: Lead, Opted-In, Community Member, Client, Collaborator).
+```
+
+**③ Talent — actor details**
+```
+In the Talent table add these fields: Union Status (single select: SAG-AFTRA, SAG-Eligible, Non-Union, Unknown); Representation Status (single select: Repped, Seeking, Self-Managed, Unknown); Years Active (number, integer); Income Range (single select: Under $25k, $25k-$100k, $100k-$500k, $500k+, Prefer not to say); Skills (multiple select, no options yet); Age Range (single line text); Gender (single line text); Ethnicity (single line text).
+```
+
+**④ Talent — links & socials**
+```
+In the Talent table add these fields: IMDb URL (URL); Actors Access URL (URL); Reel URL (URL); Instagram (single line text); YouTube (single line text); TikTok (single line text).
+```
+
+**⑤ Talent — status & meta**
+```
+In the Talent table add these fields: Engagement Status (BE) (multiple select: Unviewed, Viewed, Selected, Not Scheduled, Scheduled, Callback); Submission Notes (long text); Notes (long text); BE Resume ID (single line text); BE Submission IDs (single line text); BE Appearances Count (number, integer); First Contact (date); Last Interaction (date); Date Added (created time); Tags (multiple select, no options yet).
+```
+
+**⑥ Credits table**
+```
+Create a table named Credits with fields: Title (single line text, primary field); Type (single select: Film, TV, Streaming, Commercial, Theater, Web, Other); Character / Role (single line text); Role Level (single select: Lead, Supporting, Co-Star, Guest Star, Recurring, Featured, Background); Year (number, integer); Network / Studio / Brand (single line text); Notable (checkbox); Link (URL).
+```
+
+**⑦ Representation table**
+```
+Create a table named Representation with fields: Company (single line text, primary field); Type (single select: Agent, Manager, Agency, Publicist); Contact Name (single line text); Email (email); Phone (phone number); State (single line text).
+```
+
+**⑧ Sources table**
+```
+Create a table named Sources with fields: Source Name (single line text, primary field); Type (single select: Gmail, Breakdown Express, Event, Referral, Funnel Opt-In, Manual); Date (date); Notes (long text).
+```
+
+**⑨ Roles & Breakdowns table**
+```
+Create a table named Roles & Breakdowns with fields: Role (single line text, primary field); Project (single line text); Breakdown Title (single line text); Type (single select: Feature Film, Short, Episodic, Reality TV, Staged Reading, Commercial, Other); Description (long text); Requirements (long text); Status (single select: Open, Filled, On Hold, Archived); Published (date); Deadline (date); BE Breakdown ID (single line text); BE Project ID (single line text).
+```
+
+**⑩ Interactions table**
+```
+Create a table named Interactions with fields: Summary (single line text, primary field); Date (date); Type (single select: Email, Call, Meeting, Audition, Booking, Workshop, Event); Notes (long text).
+```
+
+**⑪ Link the tables**
+```
+Create these Link to another record fields: In Talent add a link to Representation. In Talent add a link to Sources. In Credits add a link to Talent. In Interactions add a link to Talent. In Roles & Breakdowns add a link to Talent named Submitted. In Roles & Breakdowns add a second, separate link to Talent named Shortlist.
+```
+
+**⑫ Create the views (on Talent)**
+```
+On the Talent table create these grid views: "Premium Actors" filtered where Persona has any of Actor and Assessed Tier is Premium; "Advanced by Natasha" filtered where Engagement Status (BE) has any of Selected, Scheduled, Callback; "Needs Review" filtered where Data Confidence is Unconfirmed; "Producers & Investors" filtered where Persona has any of Producer, Financier/Investor; "New This Week" filtered where Date Added is within the past week; "Full Casting Search" with no filter, grouped by Assessed Tier.
+```
+
+---
+
+**After it's built:** import `castingward-talent-SELECTED.csv` into the **Talent** table → map the `Headshot` column to the Headshot **Attachment** field so the photos pull in. The `Representation` and `Source` text values auto-create linked records.
+
+If any step fails or Omni still says a prompt is too long, tell me which number and I'll split it further.
