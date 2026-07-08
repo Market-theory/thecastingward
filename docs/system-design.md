@@ -168,6 +168,13 @@ The talent structure on BE/Actors Access is standardized, so it maps 1:1 into th
 
 Same target schema as Gmail (§5, Source A) — the two sources differ only in the `Source` field.
 
+**Confirmed BE data model (from account walkthrough).** Drill path: **Projects list (18 pp) → Breakdown (`breakdown` + `project` IDs) → Roles → status bucket (`view=auditions`, filter tab: Unviewed/Viewed/Selected/Not Scheduled/Scheduled/Callback) → actor cards → Actors Access profile.** Two capture tiers:
+
+- **Tier 1 — actor card grid** (one page per status bucket; the efficient breadth layer): `Name` · `Headshot` (image) · `Favorite` (★) · `Engagement status` (Selected/Callback/…) · `Submission note` (free text from the actor) · `Age` (sometimes) · **link to Actors Access profile** · agency (implied). Deduplicate actors by their Actors Access profile ID.
+- **Tier 2 — Actors Access profile** (one page per *unique* actor; the depth layer): `Union` (e.g. SAG-AFTRA) · all `Photos` · **`Represented by`** (agency name, state, phone, categories) · `Film / TV / Theatre credits` (title/role/type/director/network) · `Training` · `Physical` (height, weight) · `Special skills / accents`.
+
+*Recommended crawl order:* pull **Tier 1 across all breakdowns first** → yields a broad, deduped, searchable database quickly, each record carrying its profile link and engagement status. **Enrich with Tier 2 later or on-demand** (far fewer pages than profiling every actor up front). New schema fields implied: `Favorite (BE)`, `Engagement status`, `Submission note`, `Actors Access ID/URL`.
+
 Both sources write into the **same** Talent schema, distinguished only by the `Source` field.
 
 ---
