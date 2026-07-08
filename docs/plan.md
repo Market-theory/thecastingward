@@ -116,6 +116,20 @@ Confirmed structure: Projects list (18 pp) → breakdown (`breakdown=`/`project=
 - **Sensitive data** (income, age/gender/ethnicity, contact info at scale): fields optional on the form, access-limited in Airtable, provenance tracked per `system-design.md` §7. Be deliberate before cold-emailing backfilled contacts.
 - **Momentum risk** — the backfills are grindy. That's why D and E run in parallel: the funnel can launch even if the backfill is at 60%.
 
+## Addendum — 2026-07-08 (Breakdown Express pull complete + decisions)
+
+**BE crawl result:** the talent crawler ran across all 439 breakdowns and pulled **64,875 unique actors** (deduped), 100% with names / headshots / Actors Access links; 53% carry an agency; **20,785 were "Selected"** by Natasha (her engaged talent), ~44k are unviewed raw submissions. Data is clean and import-ready.
+
+**Storage decision (agreed):**
+- **Working database → Airtable (Team ~$20/mo):** load the **20,785 Selected** (`castingward-talent-SELECTED.csv`). High-signal, fits the 50k Team cap, images render, and the funnel/form/automations all hang off Airtable.
+- **Master archive → the full 64,875** (`castingward-talent-MASTER.csv`) kept as a CSV for now (free). If the entire pool ever needs to be live+filterable in one interface, migrate the archive to **Baserow/NocoDB** (open-source, handles the volume far more cheaply than Airtable Business) rather than pay for Airtable Business.
+- **Rejected: Notion** — degrades badly past a few thousand image-rich rows; wrong tool at this scale.
+
+**Email backfill (multiple Gmail accounts) — approach:**
+- Land in the **same Talent table**, tagged `Source = Gmail`, `Data Confidence = Unconfirmed`. Sparse records are expected and valid.
+- **Pass 1 (now, no code):** export Google Contacts per account (contacts.google.com → Export → Google CSV; or Takeout → Contacts for auto-saved "Other contacts"). Claude merges/dedupes/cleans → Airtable import. Captures name+email for ~everyone she's corresponded with.
+- **Pass 2 (later, optional):** Apps Script inbox scan + Claude extraction for body detail (phone, links, intent, attachments) and cold inbounds not in Contacts.
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
