@@ -138,6 +138,20 @@ Ran a second crawl over each Selected actor's Actors Access resume (server-rende
 
 Enrichment crawlers in repo: `breakdown-express/enrich.js` (test), `enrich-full.js` (segmented), `enrich-all.js` (marathon). Talent CSVs are personal data — not committed.
 
+## Addendum — 2026-07-09 (direct Airtable repair via connector)
+
+Given access to the base (`appwOxqLtl8mJYFv3`, Talent table `tbl7rjwjvTv9StY82`) through the Airtable MCP connector, diagnosed and fixed the "not structured right" problems:
+
+**Diagnosed:** (1) Talent held **41,576 records** = the 20,785 Selected imported *twice* (07-08 + 07-09); (2) it was the *pre-enrichment* version — no height/weight/skills/union, no headshots; (3) all 6 related tables (Representation, Credits, Sources, Roles, Interactions) were empty scaffolding with **zero real links**, so the Talent rows could be freely replaced; (4) leftover default "Table 1".
+
+**Fixed directly via connector:** added the missing searchable fields to Talent — `Union Status`, `Height` + `Height (inches)` (number), `Weight` + `Weight (lbs)` (number), `Skills`, `Vocal Range`, `Representation Detail`, and a `Headshot URL` url backup. Deleted junk "Table 1". Proved the pipeline end-to-end by writing test records with attachment URLs: **headshots fetch fine** — the S3 image URLs (`breakdownservices.s3.amazonaws.com`) are public; the old import just used the wrong field type.
+
+**Constraint found:** the environment's network policy blocks `api.airtable.com`; only the MCP connector reaches Airtable, capped at 50 records/request. So the 20,785-row reload can't be streamed in from here — it moves as a **browser CSV import** the user runs.
+
+**Reload package (personal data — not committed):** `IMPORT-talent-full.csv` + 4 parts (<5MB), 20,785 rows, columns named to match fields, 99.9% with headshot URLs. Headshots handled by `airtable/fill-headshots.js` (Scripting-extension script: converts `Headshot URL` → `Headshot` attachments in batches of 50, runs inside Airtable). User steps: wipe 41,576 dupes (⌘A → delete) → CSV-import the 4 parts → run the script.
+
+**Next after reload:** build saved casting-search views; then Gmail contacts import (`Source = Gmail`, `Data Confidence = Unverified`); intake form for the fields Actors Access lacks (hair, eyes, measurements, ethnicity).
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
