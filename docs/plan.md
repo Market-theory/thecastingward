@@ -130,6 +130,14 @@ Confirmed structure: Projects list (18 pp) → breakdown (`breakdown=`/`project=
 - **Pass 1 (now, no code):** export Google Contacts per account (contacts.google.com → Export → Google CSV; or Takeout → Contacts for auto-saved "Other contacts"). Claude merges/dedupes/cleans → Airtable import. Captures name+email for ~everyone she's corresponded with.
 - **Pass 2 (later, optional):** Apps Script inbox scan + Claude extraction for body detail (phone, links, intent, attachments) and cold inbounds not in Contacts.
 
+## Addendum — resume enrichment complete
+
+Ran a second crawl over each Selected actor's Actors Access resume (server-rendered `onepageresume`, reachable by resume ID alone). Result: **all 20,785 Selected actors enriched** — Union (92%), Height (96%, + numeric inches), Weight (93%, + numeric lbs), Skills (98%), Vocal Range (45%), Representation detail (24%); 0.4% resumes didn't load. Merged + cleaned into `castingward-talent-ENRICHED` (4 parts <5MB). **These supersede the SELECTED files** as the talent import.
+
+*Now searchable by:* union, height/weight ranges (numeric fields), skills (text-contains), vocal range, engagement status — combinable and saveable as casting-search views. *Still not in the data (capture via intake form later):* hair, eyes, measurements, ethnicity.
+
+Enrichment crawlers in repo: `breakdown-express/enrich.js` (test), `enrich-full.js` (segmented), `enrich-all.js` (marathon). Talent CSVs are personal data — not committed.
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
