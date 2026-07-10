@@ -204,6 +204,16 @@ Forms + automations can't be created via the API, so the launch package splits: 
 
 **Junk-options footnote:** `Data Confidence`, `Representation Status`, `Engagement Status (BE)` each carry one unused header-artifact option (removable in the field editor, 60 sec — in the guide's Step 0).
 
+## Addendum — 2026-07-10 (dashboard app v1 built)
+
+Spec approved (`docs/app-build-spec.md`, live-Airtable-API data layer) → built the same day in **`app/`**: Next.js 15 + Tailwind 4, garnet/brass iOS-style. Working and verified end-to-end (green build; login gate, roster, filters, profile, write-back all exercised headlessly with screenshots — in demo-data mode, since Airtable is reachable only via the MCP connector from the build environment).
+
+**What's in v1:** shared-password gate (`APP_PASSWORD`); server-side roster cache (Talent + Representation + Roles, ~1 min warm-up, 15-min background refresh + manual Refresh); instant client-side search/filters (name, union buckets, height range, skill, agency, assessed tier, confidence, lane); headshot card grid; profile view with live record fetch; **write-back of exactly Assessed Tier + Data Confidence** to Airtable. No token → labeled demo data; headshots render from the public S3 URLs (no attachment-URL expiry).
+
+**To deploy (Lechon, ~10 min, `app/README.md`):** Vercel project with Root Directory `app`; env vars `AIRTABLE_TOKEN` (PAT scoped to this base, records read+write) + `APP_PASSWORD`.
+
+**Still pending:** design-polish pass against the approved `casting-ward-design` mockup (artifact unreadable from the build environment — 403; paste it into a session) and Natasha's walkthrough on the deployed preview.
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).

@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-garnet-900: #4a0c1b;
+  --color-garnet-800: #5e1023;
+  --color-garnet-700: #6e1428;
+  --color-garnet-600: #82182f;
+  --color-garnet-100: #f4e3e7;
+  --color-garnet-50: #faf1f3;
+  --color-brass-600: #9a7940;
+  --color-brass-500: #b08d57;
+  --color-brass-400: #c4a670;
+  --color-brass-100: #f0e6d4;
+  --color-cream: #f7f4ef;
+  --color-ink: #221a1c;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+.hairline {
+  box-shadow: inset 0 0 0 0.5px rgb(34 26 28 / 0.14);
+}
+
+.frosted {
+  background: rgb(247 244 239 / 0.82);
+  backdrop-filter: saturate(1.6) blur(16px);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px);
+}
