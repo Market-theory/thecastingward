@@ -191,6 +191,19 @@ Built via the Airtable connector, all published:
 
 **Next:** build the native Airtable intake form per `intake-form-spec.md` §1 + the "form submitted → stamp Source/Data Confidence/Ecosystem Status" automation (both are UI-only — the API can't create forms or automations); then the funnel site.
 
+## Addendum — 2026-07-10 (intake form prepped; Persona pollution found)
+
+Forms + automations can't be created via the API, so the launch package splits: connector work done now, UI build documented click-by-click in **`docs/intake-form-build-guide.md`** (~30-40 min for Lechon).
+
+**Found: `Persona` select is polluted** — the failed CSV merge auto-created **7,723 options** on it (Submitted For strings + header artifacts). Its *data* is clean (20,785 Actor / 1 Other), but options can't be deleted via API and 7,700+ can't be deleted by hand. Fix shipped: new clean **`Lane`** field (Actor / Producer-Director / Investor-Financier / Other) supersedes it; `airtable/fill-lane-and-source.js` (paste-and-run) copies Persona→Lane on all records **and** links BE records to the Breakdown Express source; then Persona gets deleted in the UI (one right-click).
+
+**Also done via connector:**
+- **`Union (intake)`** singleSelect added (SAG-AFTRA / Eligible / Non-Union / Other) — the form's union question. Converting the free-text `Union Status` would have exploded into thousands of combo-string options; instead the form automation copies `Union (intake)` → `Union Status` text so the By Union tabs cover intake actors too.
+- **Sources table seeded:** Intake Form, Breakdown Express, Gmail — the automation links "Intake Form"; the script links BE records.
+- **Talent Search interface page rebuilt** with Lane replacing Persona on cards + a fifth **Lane** filter dropdown. Republished.
+
+**Junk-options footnote:** `Data Confidence`, `Representation Status`, `Engagement Status (BE)` each carry one unused header-artifact option (removable in the field editor, 60 sec — in the guide's Step 0).
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
