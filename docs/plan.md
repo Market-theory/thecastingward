@@ -152,6 +152,21 @@ Given access to the base (`appwOxqLtl8mJYFv3`, Talent table `tbl7rjwjvTv9StY82`)
 
 **Next after reload:** build saved casting-search views; then Gmail contacts import (`Source = Gmail`, `Data Confidence = Unverified`); intake form for the fields Actors Access lacks (hair, eyes, measurements, ethnicity).
 
+## Addendum — 2026-07-10 (data layer COMPLETE)
+
+All Airtable data work finished via paste-and-run Scripting-extension scripts (CSV merge-imports abandoned after twice inserting instead of merging — created 10,053 junk raw-ID rows, since deleted):
+
+1. `fill-headshots.js` — attached headshot images for ~20,736 actors (Headshot URL → Headshot attachments) ✅
+2. `delete-junk-records.js` — removed the 10,053 junk rows from the failed merges ✅
+3. `fill-agencies.js` — file-upload version (Scripting caps code at ~50KB, so embedded-data scripts failed); reads IMPORT-agency-merge.csv via input.fileAsync; created 1,697 agency records, linked 12,276 actors ✅
+4. `fill-submitted-for.js` — parsed Submission Notes in place; created ~1,400 role records in Roles & Breakdowns, linked ~20k actors ✅
+
+**Final state:** ~20,736 real actors — headshots, union, height/weight (text + numeric), skills, vocal range, clickable agency links, clickable submission-history links. Airtable Team plan active.
+
+**Lesson recorded:** for bulk Airtable data ops, in-base Scripting scripts (50-record batches inside Airtable) are the reliable path; the CSV-import extension's merge mode is error-prone, and the MCP connector is too intermittent for bulk writes.
+
+**Next:** Interface (gallery + filters + record detail) → intake form → funnel site. Design direction approved (iOS-style mockup artifact).
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
