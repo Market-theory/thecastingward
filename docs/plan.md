@@ -167,6 +167,30 @@ All Airtable data work finished via paste-and-run Scripting-extension scripts (C
 
 **Next:** Interface (gallery + filters + record detail) → intake form → funnel site. Design direction approved (iOS-style mockup artifact).
 
+## Addendum — 2026-07-10 (search Interface live + intake fields added)
+
+Built via the Airtable connector, all published:
+
+**Interface: "Talent Search (Internal)"** (`pbdiQ1gXk4ddHppK8`) — 3 gallery pages on Talent, cover = Headshot, title = Name, name search built into every page, click-through record detail showing the full operational profile (union, height/weight, skills, vocal range, rep + rep detail, submitted/shortlist links, engagement, submission notes, BE appearances, Actors Access URL, **BE Resume ID**, **Data Confidence**, persona, assessed tier):
+
+1. **Talent Search** (`pagR6c6KIRsKoVaxb`) — main page; filter dropdowns for **Representation**, **Submitted For**, **Data Confidence**, **Assessed Tier**.
+2. **By Union** (`pagMxRIEbkAsACVil`) — tabs: SAG-AFTRA / SAG-AFTRA Eligible / Non-Union / AEA / No union data.
+3. **By Height** (`pagHd3TPuqNmGRVd1`) — tabs in inch bands (<5'0" through 6'4"+), sorted by Height (inches).
+
+**API constraint found:** interface dropdown filters only accept select/linked-record/date fields — never plain text or number. Union Status (text), Height-inches (number), and Skills (text) therefore can't be dropdowns; union + height shipped as filter tabs instead, skills via page search. *Optional 1-minute upgrade:* convert `Union Status` to singleSelect in the field editor (Airtable auto-converts all values), after which it can be a proper dropdown.
+
+**18 intake-form fields added to Talent** (spec §0): Email, Phone, City / Location, Hair Color, Eye Color, Ethnicity, Measurements, Self-Selected Tier, Assessed Tier, Years Active, Notable Projects / Brands, Income Band (12mo, acting), IMDb URL, Website / Reel URL, Instagram, YouTube / TikTok, Ecosystem Status, Date Joined (as `CREATED_TIME()` formula — the API can't create a native created-time field; functionally identical). All selects seeded with the spec's options.
+
+**Verification (via `totalRecordCount`):**
+- Talent: **20,790** records found → deleted 4 junk CSV-header rows (every field = its own column name, one per ENRICHED import part) → **20,786 real actors**, 100% with BE Resume IDs.
+- Representation links: **12,276** actors linked (exactly matches fill-agencies.js).
+- Submitted For links: **20,785** actors linked — all but one record.
+- Headshots attached: **20,753**; Union populated: **19,257** (92.6%, matches enrichment stats).
+
+**Data-quality notes for cleanup later:** the `Data Confidence` select still carries a stray option literally named "Data Confidence" (header artifact — now unused; the connector can't delete select options, remove in the field editor). Some Union Status values carry minor-age suffixes ("NON-UNION Age: 14") — the contains-based tabs bucket them correctly.
+
+**Next:** build the native Airtable intake form per `intake-form-spec.md` §1 + the "form submitted → stamp Source/Data Confidence/Ecosystem Status" automation (both are UI-only — the API can't create forms or automations); then the funnel site.
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
