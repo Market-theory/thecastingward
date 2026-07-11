@@ -26,8 +26,10 @@ function matchesUnion(union: string, bucket: string): boolean {
   }
 }
 
-const selectCls =
-  "hairline appearance-none rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium text-ink/80 outline-none focus:ring-2 focus:ring-brass-400";
+const chip = (active: boolean) =>
+  `appearance-none rounded-full px-3.5 py-1.5 text-[13px] font-medium outline-none focus:ring-2 focus:ring-brass-400 ${
+    active ? "bg-garnet-700 text-white" : "hairline bg-white text-ink/80"
+  }`;
 
 export default function SearchApp() {
   const [roster, setRoster] = useState<Roster | null>(null);
@@ -143,7 +145,7 @@ export default function SearchApp() {
         />
 
         <div className="scrollbar-none -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
-          <select value={union} onChange={(e) => setUnion(e.target.value)} className={selectCls}>
+          <select value={union} onChange={(e) => setUnion(e.target.value)} className={chip(Boolean(union))}>
             <option value="">Union</option>
             {UNION_BUCKETS.map((u) => (
               <option key={u} value={u}>
@@ -151,7 +153,7 @@ export default function SearchApp() {
               </option>
             ))}
           </select>
-          <select value={minIn} onChange={(e) => setMinIn(e.target.value)} className={selectCls}>
+          <select value={minIn} onChange={(e) => setMinIn(e.target.value)} className={chip(Boolean(minIn))}>
             <option value="">Min height</option>
             {HEIGHTS.map((h) => (
               <option key={h.inches} value={h.inches}>
@@ -159,7 +161,7 @@ export default function SearchApp() {
               </option>
             ))}
           </select>
-          <select value={maxIn} onChange={(e) => setMaxIn(e.target.value)} className={selectCls}>
+          <select value={maxIn} onChange={(e) => setMaxIn(e.target.value)} className={chip(Boolean(maxIn))}>
             <option value="">Max height</option>
             {HEIGHTS.map((h) => (
               <option key={h.inches} value={h.inches}>
@@ -171,15 +173,15 @@ export default function SearchApp() {
             value={skillQ}
             onChange={(e) => setSkillQ(e.target.value)}
             placeholder="Skill…"
-            className={`${selectCls} w-32 shrink-0 placeholder:text-ink/40`}
+            className={`${chip(Boolean(skillQ))} w-32 shrink-0 placeholder:text-ink/40`}
           />
           <input
             value={agencyQ}
             onChange={(e) => setAgencyQ(e.target.value)}
             placeholder="Agency…"
-            className={`${selectCls} w-32 shrink-0 placeholder:text-ink/40`}
+            className={`${chip(Boolean(agencyQ))} w-32 shrink-0 placeholder:text-ink/40`}
           />
-          <select value={tier} onChange={(e) => setTier(e.target.value)} className={selectCls}>
+          <select value={tier} onChange={(e) => setTier(e.target.value)} className={chip(Boolean(tier))}>
             <option value="">Assessed tier</option>
             {TIERS.map((t) => (
               <option key={t} value={t}>
@@ -190,13 +192,13 @@ export default function SearchApp() {
           <select
             value={confidence}
             onChange={(e) => setConfidence(e.target.value)}
-            className={selectCls}
+            className={chip(Boolean(confidence))}
           >
             <option value="">Confidence</option>
             <option value="Verified">Verified</option>
             <option value="Unverified">Unverified</option>
           </select>
-          <select value={lane} onChange={(e) => setLane(e.target.value)} className={selectCls}>
+          <select value={lane} onChange={(e) => setLane(e.target.value)} className={chip(Boolean(lane))}>
             <option value="">Lane</option>
             {LANES.map((l) => (
               <option key={l} value={l}>
@@ -229,10 +231,16 @@ export default function SearchApp() {
       )}
 
       {!roster && !error && (
-        <div className="mt-24 text-center text-sm text-ink/50">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-garnet-700 border-t-transparent" />
-          Loading the roster… first load after a deploy can take a minute.
-        </div>
+        <>
+          <p className="mt-4 text-center text-[12px] text-ink/45">
+            Loading the roster… first load after a deploy can take a minute.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {Array.from({ length: 18 }).map((_, i) => (
+              <div key={i} className="aspect-[4/5] animate-pulse rounded-2xl bg-garnet-100" />
+            ))}
+          </div>
+        </>
       )}
 
       {roster && (
