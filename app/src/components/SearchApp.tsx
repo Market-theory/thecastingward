@@ -1,48 +1,29 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { Roster, Talent } from "@/lib/types";
-import { LANES, TIERS, UNION_BUCKETS } from "@/lib/types";
+import type { Roster } from "@/lib/types";
+import type { Filters, SortKey } from "@/lib/filters";
+import {
+  EMPTY_FILTERS,
+  SORT_OPTIONS,
+  activeFilterCount,
+  applyFilters,
+  describeActiveFilters,
+  removeFilter,
+  sortTalent,
+} from "@/lib/filters";
+import FilterSheet from "./FilterSheet";
 import TalentCard from "./TalentCard";
-
-const HEIGHTS: { label: string; inches: number }[] = [];
-for (let i = 56; i <= 80; i++) {
-  HEIGHTS.push({ label: `${Math.floor(i / 12)}'${i % 12}"`, inches: i });
-}
-
-function matchesUnion(union: string, bucket: string): boolean {
-  const u = union.toUpperCase();
-  switch (bucket) {
-    case "SAG-AFTRA":
-      return u.includes("SAG-AFTRA") && !u.includes("ELIGIBLE");
-    case "SAG-AFTRA Eligible":
-      return u.includes("SAG-AFTRA ELIGIBLE");
-    case "Non-Union":
-      return u.includes("NON-UNION");
-    case "AEA":
-      return u.includes("AEA");
-    default:
-      return true;
-  }
-}
-
-const chip = (active: boolean) =>
-  `appearance-none rounded-full px-3.5 py-1.5 text-[13px] font-medium outline-none focus:ring-2 focus:ring-brass-400 ${
-    active ? "bg-garnet-700 text-white" : "hairline bg-white text-ink/80"
-  }`;
 
 export default function SearchApp() {
   const [roster, setRoster] = useState<Roster | null>(null);
   const [error, setError] = useState("");
   const [q, setQ] = useState("");
-  const [union, setUnion] = useState("");
-  const [minIn, setMinIn] = useState("");
-  const [maxIn, setMaxIn] = useState("");
-  const [agencyQ, setAgencyQ] = useState("");
-  const [tier, setTier] = useState("");
-  const [lane, setLane] = useState("");
-  const [confidence, setConfidence] = useState("");
-  const [skillQ, setSkillQ] = useState("");
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [draft, setDraft] = useState<Filters>(EMPTY_FILTERS);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("name");
   const [limit, setLimit] = useState(96);
   const [refreshing, setRefreshing] = useState(false);
   const topRef = useRef<HTMLDivElement>(null);
@@ -71,61 +52,28 @@ export default function SearchApp() {
     return m;
   }, [roster]);
 
-  const filtered = useMemo(() => {
-    if (!roster) return [];
-    const query = q.trim().toLowerCase();
-    const skill = skillQ.trim().toLowerCase();
-    const agency = agencyQ.trim().toLowerCase();
-    const min = minIn ? Number(minIn) : null;
-    const max = maxIn ? Number(maxIn) : null;
-    return roster.talent.filter((t: Talent) => {
-      if (query && !t.name.toLowerCase().includes(query)) return false;
-      if (union && !matchesUnion(t.union, union)) return false;
-      if (min !== null && (t.heightIn === null || t.heightIn < min)) return false;
-      if (max !== null && (t.heightIn === null || t.heightIn > max)) return false;
-      if (skill && !t.skills.toLowerCase().includes(skill)) return false;
-      if (agency) {
-        const names = t.agencyIds.map((id) => agencyById.get(id) ?? "").join(" ");
-        const hay = `${names} ${t.repDetail}`.toLowerCase();
-        if (!hay.includes(agency)) return false;
-      }
-      if (tier && t.assessedTier !== tier) return false;
-      if (lane && t.lane !== lane) return false;
-      if (confidence && t.dataConfidence !== confidence) return false;
-      return true;
-    });
-  }, [roster, q, union, minIn, maxIn, skillQ, agencyQ, tier, lane, confidence, agencyById]);
+  const filtered = useMemo(
+    () => (roster ? sortTalent(applyFilters(roster.talent, q, filters, agencyById), sortKey) : []),
+    [roster, q, filters, sortKey, agencyById],
+  );
 
-  const hasFilters = Boolean(q || union || minIn || maxIn || skillQ || agencyQ || tier || lane || confidence);
+  // Live count for the sheet's Apply button, computed against the draft.
+  const draftCount = useMemo(
+    () => (roster && sheetOpen ? applyFilters(roster.talent, q, draft, agencyById).length : 0),
+    [roster, sheetOpen, q, draft, agencyById],
+  );
 
-  function clearFilters() {
-    setQ("");
-    setUnion("");
-    setMinIn("");
-    setMaxIn("");
-    setAgencyQ("");
-    setTier("");
-    setLane("");
-    setConfidence("");
-    setSkillQ("");
-    setLimit(96);
-    topRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
+  const nActive = activeFilterCount(filters);
+  const activeChips = describeActiveFilters(filters);
+  const sortLabel = SORT_OPTIONS.find((s) => s.key === sortKey)?.label ?? "Sort";
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-16" ref={topRef}>
       <header className="frosted sticky top-0 z-10 -mx-4 px-4 pb-3 pt-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h1 className="text-[22px] font-bold tracking-tight text-garnet-800">
-            The Casting Ward
-          </h1>
+          <h1 className="text-[22px] font-bold tracking-tight text-garnet-800">The Casting Ward</h1>
           <div className="flex items-center gap-3 text-[12px] text-ink/50">
-            {roster && (
-              <span>
-                {filtered.length.toLocaleString()} of {roster.talent.length.toLocaleString()}
-                {roster.mock && " · demo data"}
-              </span>
-            )}
+            {roster?.mock && <span>demo data</span>}
             <button
               onClick={() => void load(true)}
               disabled={refreshing}
@@ -144,76 +92,31 @@ export default function SearchApp() {
           className="hairline mt-3 w-full rounded-xl bg-white px-4 py-2.5 text-[15px] outline-none placeholder:text-ink/35 focus:ring-2 focus:ring-brass-400"
         />
 
-        <div className="scrollbar-none -mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5">
-          <select value={union} onChange={(e) => setUnion(e.target.value)} className={chip(Boolean(union))}>
-            <option value="">Union</option>
-            {UNION_BUCKETS.map((u) => (
-              <option key={u} value={u}>
-                {u}
-              </option>
-            ))}
-          </select>
-          <select value={minIn} onChange={(e) => setMinIn(e.target.value)} className={chip(Boolean(minIn))}>
-            <option value="">Min height</option>
-            {HEIGHTS.map((h) => (
-              <option key={h.inches} value={h.inches}>
-                ≥ {h.label}
-              </option>
-            ))}
-          </select>
-          <select value={maxIn} onChange={(e) => setMaxIn(e.target.value)} className={chip(Boolean(maxIn))}>
-            <option value="">Max height</option>
-            {HEIGHTS.map((h) => (
-              <option key={h.inches} value={h.inches}>
-                ≤ {h.label}
-              </option>
-            ))}
-          </select>
-          <input
-            value={skillQ}
-            onChange={(e) => setSkillQ(e.target.value)}
-            placeholder="Skill…"
-            className={`${chip(Boolean(skillQ))} w-32 shrink-0 placeholder:text-ink/40`}
-          />
-          <input
-            value={agencyQ}
-            onChange={(e) => setAgencyQ(e.target.value)}
-            placeholder="Agency…"
-            className={`${chip(Boolean(agencyQ))} w-32 shrink-0 placeholder:text-ink/40`}
-          />
-          <select value={tier} onChange={(e) => setTier(e.target.value)} className={chip(Boolean(tier))}>
-            <option value="">Assessed tier</option>
-            {TIERS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <select
-            value={confidence}
-            onChange={(e) => setConfidence(e.target.value)}
-            className={chip(Boolean(confidence))}
+        <div className="scrollbar-none -mx-4 mt-2.5 flex items-center gap-2 overflow-x-auto px-4 pb-0.5">
+          <button
+            onClick={() => setSortOpen(true)}
+            className="hairline shrink-0 rounded-full bg-white px-3.5 py-1.5 text-[13px] font-medium text-ink/75"
           >
-            <option value="">Confidence</option>
-            <option value="Verified">Verified</option>
-            <option value="Unverified">Unverified</option>
-          </select>
-          <select value={lane} onChange={(e) => setLane(e.target.value)} className={chip(Boolean(lane))}>
-            <option value="">Lane</option>
-            {LANES.map((l) => (
-              <option key={l} value={l}>
-                {l}
-              </option>
-            ))}
-          </select>
-          {hasFilters && (
+            ⇅ {sortKey === "name" ? "Sort" : sortLabel}
+          </button>
+          <button
+            onClick={() => setSheetOpen(true)}
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium ${
+              nActive > 0 ? "bg-garnet-700 text-white" : "hairline bg-white text-ink/75"
+            }`}
+          >
+            Filters{nActive > 0 ? ` (${nActive})` : ""}
+          </button>
+          {activeChips.map((c) => (
             <button
-              onClick={clearFilters}
-              className="shrink-0 rounded-full bg-garnet-700 px-3.5 py-1.5 text-[13px] font-medium text-white"
+              key={c.key}
+              onClick={() => setFilters((f) => removeFilter(f, c.key))}
+              className="shrink-0 rounded-full bg-garnet-100 px-3 py-1.5 text-[13px] font-medium text-garnet-800"
+              title="Remove filter"
             >
-              Clear
+              {c.label} ✕
             </button>
-          )}
+          ))}
         </div>
       </header>
 
@@ -245,7 +148,10 @@ export default function SearchApp() {
 
       {roster && (
         <>
-          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+          <p className="mt-4 text-[11px] font-semibold uppercase tracking-wider text-ink/40">
+            {filtered.length.toLocaleString()} {filtered.length === 1 ? "actor" : "actors"}
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
             {filtered.slice(0, limit).map((t) => (
               <TalentCard
                 key={t.id}
@@ -255,9 +161,7 @@ export default function SearchApp() {
             ))}
           </div>
           {filtered.length === 0 && (
-            <p className="mt-16 text-center text-sm text-ink/50">
-              No one matches — loosen a filter.
-            </p>
+            <p className="mt-16 text-center text-sm text-ink/50">No one matches — loosen a filter.</p>
           )}
           {filtered.length > limit && (
             <div className="mt-6 text-center">
@@ -270,6 +174,43 @@ export default function SearchApp() {
             </div>
           )}
         </>
+      )}
+
+      <FilterSheet
+        open={sheetOpen}
+        initial={filters}
+        resultCount={draftCount}
+        onDraftChange={setDraft}
+        onApply={(f) => {
+          setFilters(f);
+          setSheetOpen(false);
+          setLimit(96);
+          topRef.current?.scrollIntoView({ behavior: "smooth" });
+        }}
+        onClose={() => setSheetOpen(false)}
+      />
+
+      {sortOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={() => setSortOpen(false)} />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-3xl bg-cream pb-4 shadow-2xl sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:w-[360px] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl">
+            <div className="mx-auto mt-2.5 h-1 w-9 rounded-full bg-ink/15 sm:hidden" />
+            <p className="px-5 pb-1 pt-3 text-[17px] font-bold tracking-tight">Sort by</p>
+            {SORT_OPTIONS.map((s) => (
+              <button
+                key={s.key}
+                onClick={() => {
+                  setSortKey(s.key);
+                  setSortOpen(false);
+                }}
+                className="flex w-full items-center justify-between px-5 py-3 text-left text-[15px] active:bg-ink/5"
+              >
+                <span className={s.key === sortKey ? "font-semibold" : ""}>{s.label}</span>
+                {s.key === sortKey && <span className="text-garnet-700">✓</span>}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </main>
   );
