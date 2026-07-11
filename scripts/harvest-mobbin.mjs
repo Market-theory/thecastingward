@@ -77,12 +77,45 @@ async function harvest(url, tag, maxImgs) {
 
 await harvest("https://mobbin.com/discover/apps/ios/latest", "discover", 12);
 
-// Collect app-page links from the hydrated DOM and harvest each.
+// The discover page redirects to marketing when logged out. Fall back to
+// Mobbin's public sitemap to find per-app SEO pages, preferring apps that
+// match the casting-search reference set.
+const PREFERRED = ["airbnb", "etsy", "depop", "pinterest", "hinge", "bumble", "nike", "spotify", "zillow", "linkedin"];
+let appUrls = [];
+try {
+  const resp = await ctx.request.get("https://mobbin.com/sitemap.xml");
+  if (resp.ok()) {
+    let xml = await resp.text();
+    // sitemap index? fetch children that look app-related
+    const childMaps = [...xml.matchAll(/<loc>([^<]+sitemap[^<]*)<\/loc>/g)].map((m) => m[1]);
+    for (const cm of childMaps.slice(0, 12)) {
+      try {
+        const r = await ctx.request.get(cm);
+        if (r.ok()) xml += await r.text();
+      } catch {}
+    }
+    appUrls = [...new Set([...xml.matchAll(/<loc>(https:\/\/mobbin\.com\/apps\/[^<]+)<\/loc>/g)].map((m) => m[1]))];
+    console.log("sitemap app urls:", appUrls.length);
+  } else {
+    console.log("sitemap status:", resp.status());
+  }
+} catch (e) {
+  console.log("sitemap fail:", e.message);
+}
+const preferred = appUrls.filter((u) => PREFERRED.some((p) => u.includes(p)));
+const targets = [...new Set([...preferred, ...appUrls])].slice(0, 10);
+console.log("targets:", targets);
+for (const t of targets) {
+  const slug = t.split("/").filter(Boolean).pop().replace(/[^A-Za-z0-9-]/g, "").slice(0, 50);
+  await harvest(t, slug, 8);
+}
+
+// Also try any app links that appeared in hydrated DOMs along the way.
 const links = await page.$$eval("a", (els) =>
   [...new Set(els.map((e) => e.getAttribute("href")).filter((h) => h && h.includes("/apps/")))],
 );
-console.log("app links found:", links.length, links.slice(0, 12));
-for (const l of links.slice(0, 8)) {
+console.log("dom app links:", links.length);
+for (const l of links.slice(0, 5)) {
   const slug = l.split("/").filter(Boolean).slice(-2).join("-").replace(/[^A-Za-z0-9-]/g, "").slice(0, 50);
   await harvest(new URL(l, "https://mobbin.com").href, slug, 8);
 }
