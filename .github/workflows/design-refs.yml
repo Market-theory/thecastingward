@@ -1,0 +1,29 @@
+name: design-refs
+
+# Harvests Mobbin design-reference images on a runner with open internet and
+# commits them to the branch, so the (network-fenced) design session can view
+# them. Trigger manually or via API.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/casting-director-app-50kd44
+      - name: Harvest Mobbin reference images
+        run: bash scripts/harvest-mobbin.sh
+      - name: Commit results
+        run: |
+          git config user.name "design-refs-harvest"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/design-refs/raw
+          git diff --cached --quiet && echo "Nothing harvested" || {
+            git commit -m "Harvest Mobbin design reference images (Actions runner)"
+            git push
+          }
