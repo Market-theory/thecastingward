@@ -61,13 +61,13 @@ async function harvest(url, tag, maxImgs) {
     return;
   }
   await page.waitForTimeout(4000);
-  try {
-    await page.screenshot({ path: `${OUT}/_page-${tag}.png` });
-    saved++;
-  } catch {}
-  for (let i = 0; i < 3; i++) {
-    await page.mouse.wheel(0, 1600);
-    await page.waitForTimeout(1200);
+  for (let depth = 0; depth < 3; depth++) {
+    try {
+      await page.screenshot({ path: `${OUT}/_page-${tag}-${depth}.png` });
+      saved++;
+    } catch {}
+    await page.mouse.wheel(0, 1900);
+    await page.waitForTimeout(1500);
   }
   const rawSrcs = await page.$$eval("img", (els) =>
     els.map((e) => e.currentSrc || e.src).filter(Boolean),
@@ -94,49 +94,37 @@ async function harvest(url, tag, maxImgs) {
   }
 }
 
-await harvest("https://mobbin.com/discover/apps/ios/latest", "discover", 12);
+await harvest("https://mobbin.com/discover/apps/ios/latest", "discover", 10);
 
-// The discover page redirects to marketing when logged out. Fall back to
-// Mobbin's public sitemap to find per-app SEO pages, preferring apps that
-// match the casting-search reference set.
-const PREFERRED = ["airbnb", "etsy", "depop", "pinterest", "hinge", "bumble", "nike", "spotify", "zillow", "linkedin"];
-let appUrls = [];
-try {
-  const resp = await ctx.request.get("https://mobbin.com/sitemap.xml");
-  if (resp.ok()) {
-    let xml = await resp.text();
-    // sitemap index? fetch children that look app-related
-    const childMaps = [...xml.matchAll(/<loc>([^<]+sitemap[^<]*)<\/loc>/g)].map((m) => m[1]);
-    for (const cm of childMaps.slice(0, 12)) {
-      try {
-        const r = await ctx.request.get(cm);
-        if (r.ok()) xml += await r.text();
-      } catch {}
-    }
-    appUrls = [...new Set([...xml.matchAll(/<loc>(https:\/\/mobbin\.com\/apps\/[^<]+)<\/loc>/g)].map((m) => m[1]))];
-    console.log("sitemap app urls:", appUrls.length);
-  } else {
-    console.log("sitemap status:", resp.status());
-  }
-} catch (e) {
-  console.log("sitemap fail:", e.message);
-}
-const preferred = appUrls.filter((u) => PREFERRED.some((p) => u.includes(p)));
-const targets = [...new Set([...preferred, ...appUrls])].slice(0, 10);
-console.log("targets:", targets);
-for (const t of targets) {
-  const slug = t.split("/").filter(Boolean).pop().replace(/[^A-Za-z0-9-]/g, "").slice(0, 50);
-  await harvest(t, slug, 8);
-}
-
-// Also try any app links that appeared in hydrated DOMs along the way.
-const links = await page.$$eval("a", (els) =>
-  [...new Set(els.map((e) => e.getAttribute("href")).filter((h) => h && h.includes("/apps/")))],
+// Inventory every link on the logged-in discover page so future runs can be
+// targeted precisely; committed alongside the screenshots.
+const anchors = await page.$$eval("a", (els) =>
+  els
+    .map((e) => ({ href: e.getAttribute("href"), text: (e.textContent || "").trim().slice(0, 80) }))
+    .filter((a) => a.href),
 );
-console.log("dom app links:", links.length);
-for (const l of links.slice(0, 5)) {
-  const slug = l.split("/").filter(Boolean).slice(-2).join("-").replace(/[^A-Za-z0-9-]/g, "").slice(0, 50);
-  await harvest(new URL(l, "https://mobbin.com").href, slug, 8);
+const uniq = [];
+const seenHref = new Set();
+for (const a of anchors) {
+  if (seenHref.has(a.href)) continue;
+  seenHref.add(a.href);
+  uniq.push(a);
+  if (uniq.length >= 400) break;
+}
+writeFileSync(`${OUT}/../links.json`, JSON.stringify(uniq, null, 1));
+console.log(`link inventory: ${uniq.length} links`);
+
+// Auto-follow the links that matter for the talent-search design pass:
+// pattern pages (filter/sort, bottom sheet, search) and photo-forward apps.
+const APP_RE = /^(etsy|depop|hulu|airbnb|pinterest|hinge|bumble|nike|zillow|instacart)$/i;
+const PATTERN_RE = /(filter & sort|filtering & sorting|bottom sheet|my account & profile|search)/i;
+const appTargets = uniq.filter((a) => APP_RE.test(a.text));
+const patternTargets = uniq.filter((a) => PATTERN_RE.test(a.text));
+const targets = [...patternTargets.slice(0, 4), ...appTargets.slice(0, 5)];
+console.log("targets:", targets.map((t) => `${t.text} -> ${t.href}`));
+for (const t of targets) {
+  const slug = t.text.toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 30) || "page";
+  await harvest(new URL(t.href, "https://mobbin.com").href, slug, 8);
 }
 
 console.log(`Done. Saved ${saved} files.`);

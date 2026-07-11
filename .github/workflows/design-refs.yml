@@ -35,7 +35,7 @@ jobs:
         run: |
           git config user.name "design-refs-harvest"
           git config user.email "actions@users.noreply.github.com"
-          git add docs/design-refs/raw
+          git add docs/design-refs
           git diff --cached --quiet && echo "Nothing harvested" || {
             git commit -m "Harvest Mobbin design reference images (Actions runner)"
             git push
