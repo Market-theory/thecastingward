@@ -28,6 +28,8 @@ jobs:
           npm i playwright@1 >/dev/null
           npx playwright install --with-deps chromium
       - name: Harvest Mobbin reference images
+        env:
+          MOBBIN_COOKIE: ${{ secrets.MOBBIN_COOKIE }}
         run: node scripts/harvest-mobbin.mjs
       - name: Commit results
         run: |

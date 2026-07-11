@@ -15,6 +15,25 @@ const ctx = await browser.newContext({
   userAgent:
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
 });
+// Optional login: MOBBIN_COOKIE secret carries the user's mobbin.com cookie
+// header ("name=value; name2=value2"). Without it, only public pages render.
+const cookieHeader = process.env.MOBBIN_COOKIE || "";
+if (cookieHeader.trim()) {
+  const cookies = cookieHeader
+    .split(/;\s*/)
+    .filter(Boolean)
+    .map((c) => {
+      const i = c.indexOf("=");
+      return i > 0
+        ? { name: c.slice(0, i).trim(), value: c.slice(i + 1).trim(), domain: ".mobbin.com", path: "/" }
+        : null;
+    })
+    .filter(Boolean);
+  await ctx.addCookies(cookies);
+  console.log(`injected ${cookies.length} cookies (logged-in mode)`);
+} else {
+  console.log("no MOBBIN_COOKIE secret - anonymous mode");
+}
 const page = await ctx.newPage();
 const seen = new Set();
 let saved = 0;
