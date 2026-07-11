@@ -1,0 +1,198 @@
+[
+ {
+  "href": "/discover/apps/web/latest",
+  "text": "Mobbin"
+ },
+ {
+  "href": "/discover/sites/latest",
+  "text": "Sites"
+ },
+ {
+  "href": "/saved/mobile/screens",
+  "text": ""
+ },
+ {
+  "href": "/community/mobile/featured",
+  "text": ""
+ },
+ {
+  "href": "/search/apps/ios?content_type=apps&sort=publishedAt&filter=appCategories.AI",
+  "text": "AI"
+ },
+ {
+  "href": "/search/apps/ios?content_type=apps&sort=publishedAt&filter=appCategories.Food+%26+Drink",
+  "text": "Food & Drink"
+ },
+ {
+  "href": "/search/apps/ios?content_type=apps&sort=publishedAt&filter=appCategories.Travel+%26+Transportation",
+  "text": "Travel & Transportation"
+ },
+ {
+  "href": "/search/apps/ios?content_type=apps&sort=publishedAt&filter=appCategories.Health+%26+Fitness",
+  "text": "Health & Fitness"
+ },
+ {
+  "href": "/search/apps/ios?content_type=apps&sort=publishedAt&filter=appCategories.Lifestyle",
+  "text": "Lifestyle"
+ },
+ {
+  "href": "/search/apps/ios?content_type=screens&sort=trending&filter=screenPatterns.Subscription+%26+Paywall",
+  "text": "Subscription & Paywall"
+ },
+ {
+  "href": "/search/apps/ios?content_type=screens&sort=trending&filter=screenPatterns.Filter+%26+Sort",
+  "text": "Filter & Sort"
+ },
+ {
+  "href": "/search/apps/ios?content_type=screens&sort=trending&filter=screenPatterns.Payment+Method",
+  "text": "Payment Method"
+ },
+ {
+  "href": "/search/apps/ios?content_type=screens&sort=trending&filter=screenPatterns.Welcome+%26+Get+Started",
+  "text": "Welcome & Get Started"
+ },
+ {
+  "href": "/search/apps/ios?content_type=screens&sort=trending&filter=screenPatterns.Notifications",
+  "text": "Notifications"
+ },
+ {
+  "href": "/search/apps/ios?content_type=ui-elements&sort=trending&filter=screenElements.Card",
+  "text": "Card"
+ },
+ {
+  "href": "/search/apps/ios?content_type=ui-elements&sort=trending&filter=screenElements.Dropdown+Menu",
+  "text": "Dropdown Menu"
+ },
+ {
+  "href": "/search/apps/ios?content_type=ui-elements&sort=trending&filter=screenElements.Bottom+Sheet",
+  "text": "Bottom Sheet"
+ },
+ {
+  "href": "/search/apps/ios?content_type=ui-elements&sort=trending&filter=screenElements.Stacked+List",
+  "text": "Stacked List"
+ },
+ {
+  "href": "/search/apps/ios?content_type=ui-elements&sort=trending&filter=screenElements.Tab+Bar",
+  "text": "Tab Bar"
+ },
+ {
+  "href": "/search/apps/ios?content_type=flows&sort=trending&filter=flowActions.Filtering+%26+Sorting",
+  "text": "Filtering & Sorting"
+ },
+ {
+  "href": "/search/apps/ios?content_type=flows&sort=trending&filter=flowActions.Logging+In",
+  "text": "Logging In"
+ },
+ {
+  "href": "/search/apps/ios?content_type=flows&sort=trending&filter=flowActions.Subscribing+%26+Upgrading",
+  "text": "Subscribing & Upgrading"
+ },
+ {
+  "href": "/search/apps/ios?content_type=flows&sort=trending&filter=flowActions.Onboarding",
+  "text": "Onboarding"
+ },
+ {
+  "href": "/search/apps/ios?content_type=flows&sort=trending&filter=flowActions.Browsing+Tutorial",
+  "text": "Browsing Tutorial"
+ },
+ {
+  "href": "/discover/apps/ios/latest",
+  "text": "iOS"
+ },
+ {
+  "href": "/discover/apps/ios/popular",
+  "text": "Most popular"
+ },
+ {
+  "href": "/discover/apps/ios/top",
+  "text": "Top rated"
+ },
+ {
+  "href": "/discover/apps/ios/animations",
+  "text": "Animations"
+ },
+ {
+  "href": "/apps/granola-ios-c6a2ae2a-2618-465b-9ef1-bd991224362d/1742729d-3a65-4e0a-bf1a-b80b6cdfcc2e/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/goat-ios-d3c72ab3-1590-4377-9b03-5bef15bc88b4/e2651f59-f057-40e5-b5d0-b741baf665ec/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/nord-vpn-ios-51cebd4b-2aac-4e60-89c3-6f38f4c3d1c4/bd6736a9-a180-4c95-95de-03e1e21835b5/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/uniqlo-ios-236cf6c5-6ee5-47c6-9d20-99d5d6fc1367/cd87be93-c8d0-4974-a8cf-c35915e13082/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/finimize-ios-5f87a500-a1c2-4e7c-998f-ff575721352b/1a22fce2-8438-450b-9d30-e3952efec12b/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/otter-ai-ios-b77988bb-9126-4f08-a3a3-440be63e102e/6f9ad2e3-4a99-431a-96a0-50926f7e494e/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/hypelist-ios-5601988a-32b9-4b2d-8eca-bb1591a1a7f2/bf74a19a-0364-4293-96de-35d01e9dfb58/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/breathwrk-ios-3107d716-8d07-4962-b6ec-29eb360653a1/c1143163-c56e-47be-a155-075e1fdbcd5c/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/ny-times-ios-d56ccbd6-843a-4fae-a697-e9a58529fabd/5d216662-a365-434e-a9f0-09a7e3864e5d/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/photoroom-ios-dc962dd8-e6a0-4553-9939-ac906e1fd84b/7f9925f2-5a17-40cb-9828-ff314e3191d0/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/apple-news-ios-2ba30e05-f5ad-4666-82d8-677904a0c82e/265b7905-18b6-4f2f-9f7f-1174f0420c78/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/whatnot-ios-e004776c-e3b6-46f6-935b-234af5ecac45/ac33d719-7992-44ec-aef0-e5700251a1c6/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/shazam-ios-053c59f9-367d-4879-be6f-c1340666e76e/09d55616-be01-4fde-978f-f18c06b98ddc/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/superpower-ios-f3a6383d-a99a-4276-a216-7e4ac0528557/903a2c06-c57f-474a-9e8b-d27af3d1033c/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/savee-ios-9fb09156-41f0-4caa-9081-ccf8fb2dc985/26b23550-497a-4961-ace4-a3c026731291/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/linktree-ios-433b06a6-edae-4a04-80e1-9e6dc617ba00/7e2e0a8f-5fb6-4f81-a8f8-dc027e987a00/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/apple-store-ios-c398e404-cbd4-4f86-8a89-18e36b882319/2c15abd3-2aec-4a0c-bee8-f81995702a6a/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/udemy-ios-857de07b-eb1e-4b47-9d16-8267d2d12c4d/043d8492-e1e2-4707-bf1b-35f9a2930e00/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/obsidian-ios-e4b9179c-c3da-4603-a608-64b31a47a6c1/1734350f-b47a-4470-85b7-54685acaa4e7/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/airalo-ios-bd0ba9d3-290c-4b5a-aeb1-82b8be1578cf/c8443344-6483-4cf5-a59c-2d6810ae9683/screens",
+  "text": ""
+ },
+ {
+  "href": "/apps/journal-ios-9819c592-b411-4cfa-a5bb-0a2bd90d52e8/90df7547-440b-4c6d-9257-9eb7fda8502b/screens",
+  "text": ""
+ }
+]
