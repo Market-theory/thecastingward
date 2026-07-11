@@ -5,6 +5,12 @@ name: design-refs
 # them. Trigger manually or via API.
 on:
   workflow_dispatch:
+  push:
+    branches: [claude/casting-director-app-50kd44]
+    paths:
+      - "scripts/harvest-mobbin.sh"
+      - ".github/workflows/design-refs.yml"
+      - "docs/design-refs/request.txt"
 
 permissions:
   contents: write
