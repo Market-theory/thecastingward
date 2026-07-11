@@ -214,6 +214,12 @@ Spec approved (`docs/app-build-spec.md`, live-Airtable-API data layer) → built
 
 **Still pending:** design-polish pass against the approved `casting-ward-design` mockup (artifact unreadable from the build environment — 403; paste it into a session) and Natasha's walkthrough on the deployed preview.
 
+## Addendum — 2026-07-11 (Browserbase connector: capabilities + limits)
+
+Browserbase MCP is now wired to remote sessions as a claude.ai custom connector (`https://mcp.browserbase.com/mcp?browserbaseApiKey=…&browserbaseProjectId=…` — connector traffic bypasses the environment's network fence, which blocks mobbin.com/browserbase.com directly). Verified working: session start, navigation, logged-in Mobbin access (user logs in once via Browserbase live view), text extraction, and (flakily) clicking — the `act`/`observe` tools intermittently fail on an internal schema bug; workaround is quoting an element's exact `observe` description.
+
+**Hard limit found:** this MCP's `extract` reads the DOM/accessibility tree, not pixels — no screenshot tool is exposed. It cannot see or reliably harvest Mobbin's screenshot images, so **visual design-reference collection is not deliverable through this connector**. Good for future ops (navigating, form-filling, text scraping on blocked-from-container sites); wrong tool for design harvesting. Design refs still come in via: screenshots pasted to chat, a local-session commit to docs/design-refs/, or Google Drive.
+
 ## Immediate next three actions
 
 1. **Claude:** generate the Airtable CSV seed files + setup guide (workstream A1).
