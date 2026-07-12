@@ -1,0 +1,72 @@
+name: deploy-app
+
+# Deploys app/ to Vercel from a runner, driven entirely by repo secrets:
+#   VERCEL_TOKEN   — vercel.com/account/settings/tokens
+#   AIRTABLE_TOKEN — personal access token scoped to the Casting Ward base
+#                    (data.records:read + data.records:write)
+#   APP_PASSWORD   — the shared login password for the app
+# Creates/links the Vercel project on first run, syncs env vars, deploys prod.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/casting-director-app-50kd44]
+    paths:
+      - "app/**"
+      - ".github/workflows/deploy-app.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/casting-director-app-50kd44
+      - name: Check secrets
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN secret not set — skipping deploy."
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+      - name: Deploy to Vercel
+        if: env.SKIP != '1'
+        working-directory: app
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
+        run: |
+          npm i -g vercel >/dev/null
+          vercel link --yes --project casting-ward --token "$VERCEL_TOKEN"
+          for NAME in AIRTABLE_TOKEN APP_PASSWORD; do
+            VAL="${!NAME}"
+            if [ -n "$VAL" ]; then
+              vercel env rm "$NAME" production --yes --token "$VERCEL_TOKEN" 2>/dev/null || true
+              printf '%s' "$VAL" | vercel env add "$NAME" production --token "$VERCEL_TOKEN"
+            fi
+          done
+          vercel deploy --prod --yes --token "$VERCEL_TOKEN" > deploy-url.txt
+          echo "Deployed: $(cat deploy-url.txt)"
+      - name: Record deploy URL
+        if: env.SKIP != '1'
+        run: |
+          URL=$(cat app/deploy-url.txt)
+          {
+            echo "# Casting Ward app — deployment"
+            echo
+            echo "Production: $URL"
+            echo
+            echo "Deployed $(date -u +%Y-%m-%dT%H:%MZ) by GitHub Actions (deploy-app.yml)."
+          } > docs/DEPLOYMENT.md
+          git config user.name "deploy-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/DEPLOYMENT.md
+          git diff --cached --quiet || {
+            git commit -m "Record Vercel deployment URL"
+            git pull --rebase origin claude/casting-director-app-50kd44
+            git push
+          }

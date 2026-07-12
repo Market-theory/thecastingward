@@ -1,0 +1,39 @@
+name: teardown
+
+# Captures a public site (screenshots + copy + structure) on a runner with
+# open internet, committing results to docs/teardown/<host>/ for analysis.
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/casting-director-app-50kd44]
+    paths:
+      - "docs/teardown/request.txt"
+      - "scripts/teardown-site.mjs"
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/casting-director-app-50kd44
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null
+          npm i playwright@1 >/dev/null
+          npx playwright install --with-deps chromium
+      - name: Capture site
+        run: node scripts/teardown-site.mjs
+      - name: Commit results
+        run: |
+          git config user.name "teardown-capture"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/teardown
+          git diff --cached --quiet && echo "Nothing captured" || {
+            git commit -m "Capture site teardown (Actions runner)"
+            git pull --rebase origin claude/casting-director-app-50kd44
+            git push
+          }
