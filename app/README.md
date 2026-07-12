@@ -26,3 +26,7 @@ Without `AIRTABLE_TOKEN` the app serves labeled **demo data** (safe for previews
 cd app && npm install && npm run dev   # demo data
 AIRTABLE_TOKEN=pat… npm run dev        # live data
 ```
+
+## Deployment
+
+Deployed by the `deploy-app` GitHub Actions workflow (secrets: VERCEL_TOKEN, AIRTABLE_TOKEN, APP_PASSWORD). Production URL is recorded in docs/DEPLOYMENT.md after each deploy.
