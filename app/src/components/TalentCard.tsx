@@ -55,7 +55,7 @@ export default function TalentCard({ talent, agencyName }: { talent: Talent; age
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/35 to-transparent px-3 pb-2.5 pt-10">
         <p className="truncate text-[13px] font-semibold leading-tight text-white">{talent.name}</p>
         <p className="mt-0.5 truncate text-[11px] text-white/75">
-          {[talent.height, agencyName].filter(Boolean).join(" · ") || " "}
+          {[talent.height, talent.location, agencyName].filter(Boolean).join(" · ") || " "}
         </p>
       </div>
     </Link>

@@ -14,6 +14,7 @@ const SKILLS = [
   "Boxing, Motorcycle License, Swimming, Rock Climbing",
 ];
 const AGENCIES = ["Authentic", "Gersh", "Innovative Artists", "Paradigm", "AKA Talent"];
+const CITIES = ["Los Angeles, CA", "New York, NY", "Atlanta, GA", "Chicago, IL", "Austin, TX", "Miami, FL"];
 const ROLES = ["NATE (bd 78762)", "TEDDY (bd 78762)", "MALE HOST (bd 83458)", "DETECTIVE ROSS (bd 91020)", "COMEDIAN (bd 388279)"];
 
 export function mockRoster(): Roster {
@@ -25,6 +26,7 @@ export function mockRoster(): Roster {
     talent.push({
       id: `recMOCK${String(i).padStart(10, "0")}`,
       name,
+      location: CITIES[i % CITIES.length],
       headshotUrl: "",
       union: UNIONS[i % UNIONS.length],
       height: `${Math.floor(heightIn / 12)}'${heightIn % 12}"`,

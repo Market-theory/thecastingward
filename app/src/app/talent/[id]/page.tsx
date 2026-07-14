@@ -56,6 +56,9 @@ export default async function TalentPage(props: { params: Promise<{ id: string }
           <p className="mt-1 text-[14px] text-ink/55">
             {[talent.union, talent.height, talent.lane].filter(Boolean).join(" · ")}
           </p>
+          {talent.location && (
+            <p className="mt-0.5 text-[13px] text-ink/50">📍 {talent.location}</p>
+          )}
           <div className="mt-3 flex flex-wrap gap-1.5">
             {talent.assessedTier && (
               <span className="rounded-md bg-brass-500 px-2 py-0.5 text-[11px] font-bold text-garnet-900">
@@ -96,6 +99,7 @@ export default async function TalentPage(props: { params: Promise<{ id: string }
         <section className="hairline rounded-2xl bg-white p-4">
           <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink/45">Profile</h2>
           <div className="mt-1">
+            <Row label="Location" value={talent.location} />
             <Row label="Union" value={talent.union} />
             <Row label="Height" value={talent.height} />
             <Row label="Weight" value={talent.weight} />

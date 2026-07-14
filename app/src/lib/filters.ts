@@ -66,6 +66,7 @@ export function activeFilterCount(f: Filters): number {
 export function buildHaystack(t: Talent, agencyNames: string, roleNames: string): string {
   return [
     t.name,
+    t.location,
     t.union,
     t.height,
     t.weight,

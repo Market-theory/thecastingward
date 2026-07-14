@@ -1,6 +1,7 @@
 export type Talent = {
   id: string;
   name: string;
+  location: string;
   headshotUrl: string;
   union: string;
   height: string;

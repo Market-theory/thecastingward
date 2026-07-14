@@ -11,6 +11,7 @@ const TTL_MS = 15 * 60 * 1000;
 
 const TALENT_FIELDS = [
   "Name",
+  "City / Location",
   "Headshot URL",
   "Union Status",
   "Height",
@@ -91,6 +92,7 @@ function toTalent(r: AirtableRecord): Talent {
   return {
     id: r.id,
     name: s(f["Name"]),
+    location: s(f["City / Location"]),
     headshotUrl: s(f["Headshot URL"]),
     union: s(f["Union Status"]),
     height: s(f["Height"]),
