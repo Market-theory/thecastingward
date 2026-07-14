@@ -56,19 +56,24 @@ jobs:
       - name: Record deploy URL
         if: env.SKIP != '1'
         run: |
-          URL=$(cat app/deploy-url.txt)
+          URL=$(tail -1 app/deploy-url.txt)
           {
             echo "# Casting Ward app — deployment"
             echo
-            echo "Production: $URL"
+            echo "Stable URL: https://casting-ward.vercel.app"
+            echo "Latest deployment: $URL"
             echo
             echo "Deployed $(date -u +%Y-%m-%dT%H:%MZ) by GitHub Actions (deploy-app.yml)."
           } > docs/DEPLOYMENT.md
           git config user.name "deploy-bot"
           git config user.email "actions@users.noreply.github.com"
+          # The Vercel CLI dirties tracked files (e.g. .gitignore); discard those
+          # so the rebase-pull below has a clean tree. DEPLOYMENT.md is untracked
+          # and therefore untouched by the checkout.
+          git checkout -- . 2>/dev/null || true
           git add docs/DEPLOYMENT.md
           git diff --cached --quiet || {
-            git commit -m "Record Vercel deployment URL"
-            git pull --rebase origin claude/casting-director-app-50kd44
+            git commit -m "Record Vercel deployment URL [skip ci]"
+            git pull --rebase --autostash origin claude/casting-director-app-50kd44
             git push
           }
