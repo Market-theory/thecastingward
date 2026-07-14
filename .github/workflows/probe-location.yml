@@ -1,0 +1,35 @@
+name: probe-location
+
+# Feasibility probe: fetches a sample of Actors Access resumes and reports
+# whether they carry usable location data, so we can decide on a full backfill.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/casting-director-app-50kd44
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null
+          npm i playwright@1 >/dev/null
+          npx playwright install --with-deps chromium
+      - name: Probe resumes
+        run: node scripts/probe-be-location.mjs
+      - name: Commit report
+        run: |
+          git config user.name "location-probe"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -- . 2>/dev/null || true
+          git add docs/teardown/be-location-probe.json
+          git diff --cached --quiet || {
+            git commit -m "BE location feasibility probe results"
+            git pull --rebase --autostash origin claude/casting-director-app-50kd44
+            git push
+          }
