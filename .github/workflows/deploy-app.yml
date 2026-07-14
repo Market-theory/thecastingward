@@ -41,6 +41,8 @@ jobs:
           APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
         run: |
           npm i -g vercel >/dev/null
+          # Create the project on first run (no-op if it already exists), then link.
+          vercel project add casting-ward --token "$VERCEL_TOKEN" 2>/dev/null || true
           vercel link --yes --project casting-ward --token "$VERCEL_TOKEN"
           for NAME in AIRTABLE_TOKEN APP_PASSWORD; do
             VAL="${!NAME}"
