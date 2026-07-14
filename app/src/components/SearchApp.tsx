@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Fuse from "fuse.js";
 import type { Roster } from "@/lib/types";
 import type { Filters, SortKey } from "@/lib/filters";
 import {
@@ -8,6 +9,7 @@ import {
   SORT_OPTIONS,
   activeFilterCount,
   applyFilters,
+  applyQuery,
   buildHaystack,
   describeActiveFilters,
   removeFilter,
@@ -74,21 +76,42 @@ export default function SearchApp() {
     return m;
   }, [roster, agencyById, roleById]);
 
+  // Fuse index over the haystacks — powers typo-tolerant fallback. Built once
+  // per roster; searched only when a literal match returns nothing.
+  const fuse = useMemo(() => {
+    const docs = (roster?.talent ?? []).map((t) => ({ id: t.id, hay: haystackById.get(t.id) ?? "" }));
+    return new Fuse(docs, {
+      keys: ["hay"],
+      threshold: 0.42,
+      distance: 400,
+      ignoreLocation: true,
+      minMatchCharLength: 2,
+    });
+  }, [roster, haystackById]);
+
+  // Fuzzy id set for the current query (only computed when there's a query).
+  const fuzzyIds = useMemo(() => {
+    if (!roster || q.trim().length < 2) return null;
+    return new Set(fuse.search(q.trim()).map((r) => r.item.id));
+  }, [roster, q, fuse]);
+
+  const runFilters = (f: Filters) => {
+    if (!roster) return [];
+    const structured = applyFilters(roster.talent, f, agencyById);
+    return applyQuery(structured, q, haystackById, fuzzyIds);
+  };
+
   const filtered = useMemo(
-    () =>
-      roster
-        ? sortTalent(applyFilters(roster.talent, q, filters, agencyById, haystackById), sortKey)
-        : [],
-    [roster, q, filters, sortKey, agencyById, haystackById],
+    () => sortTalent(runFilters(filters), sortKey),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [roster, q, filters, sortKey, agencyById, haystackById, fuzzyIds],
   );
 
   // Live count for the sheet's Apply button, computed against the draft.
   const draftCount = useMemo(
-    () =>
-      roster && sheetOpen
-        ? applyFilters(roster.talent, q, draft, agencyById, haystackById).length
-        : 0,
-    [roster, sheetOpen, q, draft, agencyById, haystackById],
+    () => (roster && sheetOpen ? runFilters(draft).length : 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [roster, sheetOpen, q, draft, agencyById, haystackById, fuzzyIds],
   );
 
   const nActive = activeFilterCount(filters);
