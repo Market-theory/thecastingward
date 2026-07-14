@@ -176,6 +176,66 @@ export async function getTalentLive(recordId: string): Promise<Talent | null> {
   return toTalent((await res.json()) as AirtableRecord);
 }
 
+// Resolve a handful of linked-record IDs to their display names with ONE
+// request, instead of pulling an entire table. Used by the profile page so it
+// never triggers the full 20k-record roster fetch (which exceeds the
+// serverless timeout on a cold instance).
+async function resolveLinkedNames(
+  tableId: string,
+  nameField: string,
+  ids: string[],
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return map;
+  const formula = `OR(${unique.map((id) => `RECORD_ID()='${id}'`).join(",")})`;
+  const params = new URLSearchParams({ filterByFormula: formula, pageSize: "100" });
+  params.append("fields[]", nameField);
+  const res = await airtableFetch(`/${tableId}?${params.toString()}`);
+  if (!res.ok) return map; // names are non-critical; render the profile regardless
+  const json = (await res.json()) as { records: AirtableRecord[] };
+  for (const r of json.records) map.set(r.id, s(r.fields[nameField]));
+  return map;
+}
+
+export type TalentPageData = {
+  talent: Talent;
+  agencies: string[];
+  submitted: string[];
+  shortlisted: string[];
+};
+
+// Everything the profile page needs, resolved cheaply: the record itself plus
+// its own linked agency/role names — no full-table scans.
+export async function getTalentPageData(recordId: string): Promise<TalentPageData | null> {
+  const talent = await getTalentLive(recordId);
+  if (!talent) return null;
+
+  if (!token()) {
+    const r = mockRoster();
+    const nameOf = (refs: NamedRef[], id: string) => refs.find((x) => x.id === id)?.name ?? "";
+    return {
+      talent,
+      agencies: talent.agencyIds.map((id) => nameOf(r.agencies, id)).filter(Boolean),
+      submitted: talent.submittedForIds.map((id) => nameOf(r.roles, id)).filter(Boolean),
+      shortlisted: talent.shortlistForIds.map((id) => nameOf(r.roles, id)).filter(Boolean),
+    };
+  }
+
+  const [agencyMap, roleMap] = await Promise.all([
+    resolveLinkedNames(REPRESENTATION, "Name", talent.agencyIds),
+    resolveLinkedNames(ROLES, "Role Name", [...talent.submittedForIds, ...talent.shortlistForIds]),
+  ]);
+  const pick = (map: Map<string, string>, ids: string[]) =>
+    ids.map((id) => map.get(id) ?? "").filter(Boolean);
+  return {
+    talent,
+    agencies: pick(agencyMap, talent.agencyIds),
+    submitted: pick(roleMap, talent.submittedForIds),
+    shortlisted: pick(roleMap, talent.shortlistForIds),
+  };
+}
+
 export async function patchAssessment(
   recordId: string,
   fields: { assessedTier?: string; dataConfidence?: string },

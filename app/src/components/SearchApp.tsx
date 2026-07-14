@@ -8,6 +8,7 @@ import {
   SORT_OPTIONS,
   activeFilterCount,
   applyFilters,
+  buildHaystack,
   describeActiveFilters,
   removeFilter,
   sortTalent,
@@ -52,15 +53,42 @@ export default function SearchApp() {
     return m;
   }, [roster]);
 
+  const roleById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const r of roster?.roles ?? []) m.set(r.id, r.name);
+    return m;
+  }, [roster]);
+
+  // Precompute a full-text haystack per talent once, so the search box can
+  // match anything (skills, union, agency, resume ID, submitted roles…)
+  // without rebuilding strings on every keystroke.
+  const haystackById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const t of roster?.talent ?? []) {
+      const agencyNames = t.agencyIds.map((id) => agencyById.get(id) ?? "").join(" ");
+      const roleNames = [...t.submittedForIds, ...t.shortlistForIds]
+        .map((id) => roleById.get(id) ?? "")
+        .join(" ");
+      m.set(t.id, buildHaystack(t, agencyNames, roleNames));
+    }
+    return m;
+  }, [roster, agencyById, roleById]);
+
   const filtered = useMemo(
-    () => (roster ? sortTalent(applyFilters(roster.talent, q, filters, agencyById), sortKey) : []),
-    [roster, q, filters, sortKey, agencyById],
+    () =>
+      roster
+        ? sortTalent(applyFilters(roster.talent, q, filters, agencyById, haystackById), sortKey)
+        : [],
+    [roster, q, filters, sortKey, agencyById, haystackById],
   );
 
   // Live count for the sheet's Apply button, computed against the draft.
   const draftCount = useMemo(
-    () => (roster && sheetOpen ? applyFilters(roster.talent, q, draft, agencyById).length : 0),
-    [roster, sheetOpen, q, draft, agencyById],
+    () =>
+      roster && sheetOpen
+        ? applyFilters(roster.talent, q, draft, agencyById, haystackById).length
+        : 0,
+    [roster, sheetOpen, q, draft, agencyById, haystackById],
   );
 
   const nActive = activeFilterCount(filters);
@@ -88,7 +116,7 @@ export default function SearchApp() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search name…"
+          placeholder="Search name, skill, union, agency, resume ID…"
           className="hairline mt-3 w-full rounded-xl bg-white px-4 py-2.5 text-[15px] outline-none placeholder:text-ink/35 focus:ring-2 focus:ring-brass-400"
         />
 

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AssessControls from "@/components/AssessControls";
-import { getRoster, getTalentLive } from "@/lib/airtable";
+import { getTalentPageData } from "@/lib/airtable";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -18,14 +18,9 @@ function Row({ label, value }: { label: string; value?: string | null }) {
 
 export default async function TalentPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
-  const [talent, roster] = await Promise.all([getTalentLive(id), getRoster()]);
-  if (!talent) notFound();
-
-  const nameOf = (refs: { id: string; name: string }[], rid: string) =>
-    refs.find((r) => r.id === rid)?.name ?? "";
-  const agencies = talent.agencyIds.map((r) => nameOf(roster.agencies, r)).filter(Boolean);
-  const submitted = talent.submittedForIds.map((r) => nameOf(roster.roles, r)).filter(Boolean);
-  const shortlisted = talent.shortlistForIds.map((r) => nameOf(roster.roles, r)).filter(Boolean);
+  const data = await getTalentPageData(id);
+  if (!data) notFound();
+  const { talent, agencies, submitted, shortlisted } = data;
 
   return (
     <main className="mx-auto max-w-3xl px-4 pb-16">

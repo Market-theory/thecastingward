@@ -60,17 +60,48 @@ export function activeFilterCount(f: Filters): number {
   );
 }
 
+// One lowercased string per talent holding every searchable field, so the
+// search box matches anything about a person — not just their name. Built once
+// when the roster loads (see SearchApp) and reused across keystrokes.
+export function buildHaystack(t: Talent, agencyNames: string, roleNames: string): string {
+  return [
+    t.name,
+    t.union,
+    t.height,
+    t.weight,
+    t.skills,
+    t.vocalRange,
+    t.repStatus,
+    t.repDetail,
+    agencyNames,
+    roleNames,
+    t.submissionNotes,
+    t.beResumeId,
+    t.lane,
+    t.assessedTier,
+    t.dataConfidence,
+    t.engagement,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
 export function applyFilters(
   talent: Talent[],
   query: string,
   f: Filters,
   agencyById: Map<string, string>,
+  haystackById?: Map<string, string>,
 ): Talent[] {
-  const q = query.trim().toLowerCase();
+  // Multi-word query: every token must appear somewhere in the record.
+  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const skill = f.skill.trim().toLowerCase();
   const agency = f.agency.trim().toLowerCase();
   return talent.filter((t) => {
-    if (q && !t.name.toLowerCase().includes(q)) return false;
+    if (tokens.length) {
+      const hay = haystackById?.get(t.id) ?? t.name.toLowerCase();
+      if (!tokens.every((tok) => hay.includes(tok))) return false;
+    }
     if (f.union.length && !f.union.some((b) => matchesUnion(t.union, b))) return false;
     if (f.minIn !== null && (t.heightIn === null || t.heightIn < f.minIn)) return false;
     if (f.maxIn !== null && (t.heightIn === null || t.heightIn > f.maxIn)) return false;
